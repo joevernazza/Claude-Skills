@@ -1,0 +1,17 @@
+// Front end + editor styles for __SLUG__/site-info.
+.site-info {
+	margin: 0;
+}
+
+.site-info--social {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	padding: 0;
+	list-style: none;
+
+	a {
+		display: inline-block;
+		padding-block: 4px; // keeps the 24px minimum target size (WCAG 2.5.8)
+	}
+}

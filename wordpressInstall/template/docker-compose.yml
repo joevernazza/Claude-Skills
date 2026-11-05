@@ -1,0 +1,89 @@
+name: __PROJECT__
+
+# Local WordPress: http://localhost:__PORT__  (phpMyAdmin: http://localhost:__PMA_PORT__)
+#
+# public_html/ is the web root. Only the theme and must-use plugin are in git;
+# on a fresh clone the WordPress image copies core into public_html on first
+# start (it never overwrites existing wp-content). wp-config.php is generated
+# from the WORDPRESS_* values below and is git-ignored.
+#
+# PHP __PHP_VERSION__ to match production.
+#
+# Image tags are pinned to a PHP version. For fully reproducible installs,
+# pin by digest (docker image inspect <image> --format '{{index .RepoDigests 0}}').
+
+x-wp-env: &wp-env
+  WORDPRESS_DB_HOST: db
+  WORDPRESS_DB_NAME: __PREFIX__
+  WORDPRESS_DB_USER: __PREFIX__
+  WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-__PREFIX__}
+  WORDPRESS_CONFIG_EXTRA: |
+    define( 'WP_ENVIRONMENT_TYPE', 'local' );
+
+services:
+  db:
+    # Match production's engine and major version (create-site --db/--db-version).
+    image: __DB_IMAGE__
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: __PREFIX__
+      MYSQL_USER: __PREFIX__
+      MYSQL_PASSWORD: ${DB_PASSWORD:-__PREFIX__}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      # @db:mysql
+      # TCP, not the socket: MySQL's temporary init server only listens on the
+      # socket, so this stays unhealthy until the real server is up.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${DB_ROOT_PASSWORD:-root}"]
+      # /@db:mysql
+      # @db:mariadb
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      # /@db:mariadb
+      interval: 5s
+      retries: 30
+
+  wordpress:
+    image: wordpress:php__PHP_VERSION__-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "__PORT__:80"
+    environment:
+      <<: *wp-env
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - ./public_html:/var/www/html
+
+  # Usage: docker compose run --rm cli wp <command>
+  # `wp db ...` commands use WP-CLI's bundled MariaDB client, which requires
+  # TLS and only works against MariaDB 11.4+ (not MySQL or older MariaDB).
+  # Use scripts/db-export.sh / db-import.sh, or:
+  #   docker compose exec db __DB_CLIENT__ -uroot -proot __PREFIX__
+  cli:
+    image: wordpress:cli-php__PHP_VERSION__
+    profiles: ["cli"]
+    user: "33:33"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *wp-env
+    volumes:
+      - ./public_html:/var/www/html
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "__PMA_PORT__:80"
+    environment:
+      PMA_HOST: db
+
+volumes:
+  db_data:

@@ -1,0 +1,39 @@
+// ---------------------------------------------------------------
+// Breakpoints (mobile-first, min-width)
+// Load in any partial with: @use 'breakpoints' as *;
+//
+// Usage:
+//   .thing {
+//     padding: 1rem;              // mobile (default)
+//     @include mq(tablet) { ... } // 768px and up
+//     @include mq(desktop) { ... } // 1024px and up
+//   }
+//
+// You can also pass a raw value: @include mq(1200px) { ... }
+// ---------------------------------------------------------------
+
+@use "sass:map";
+@use "sass:meta";
+
+$breakpoints: (
+	tablet: 768px,
+	desktop: 1024px,
+);
+
+@mixin mq($bp) {
+
+	@if map.has-key($breakpoints, $bp) {
+
+		@media (min-width: map.get($breakpoints, $bp)) {
+			@content;
+		}
+	} @else if meta.type-of($bp) == "number" {
+
+		@media (min-width: $bp) {
+			@content;
+		}
+	} @else {
+
+		@error "Unknown breakpoint `#{$bp}`. Use one of: #{map.keys($breakpoints)}, or a number.";
+	}
+}

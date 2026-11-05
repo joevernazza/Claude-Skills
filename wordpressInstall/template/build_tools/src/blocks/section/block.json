@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "__SLUG__/section",
+	"version": "1.0.0",
+	"title": "Section",
+	"category": "design",
+	"icon": "layout",
+	"description": "Wraps any blocks in a <section> with an inner container. Set an HTML anchor (id) and extra CSS classes in Advanced.",
+	"keywords": [ "section", "container", "wrapper", "group" ],
+	"textdomain": "__SLUG__",
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"className": true
+	},
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php"
+}

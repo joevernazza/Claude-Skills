@@ -1,0 +1,113 @@
+# Lints, builds and deploys __DOMAIN__ over SSH (rsync)
+# every time you push to the main branch.
+#
+# Deploys only our own code:
+#   - the theme            -> wp-content/themes/__SLUG__/
+#   - the must-use plugin  -> wp-content/mu-plugins/__SLUG__(.php)
+# WordPress core, wp-config.php, other plugins and uploads live on the server
+# and are never touched.
+name: Lint, Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: # adds a "Run workflow" button in the Actions tab
+
+# Never run two deploys at the same time
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '__PHP_VERSION__'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install PHP tools
+        run: composer install --no-interaction --no-progress
+
+      # WordPress Coding Standards + PHP compatibility (see phpcs.xml.dist)
+      - name: PHPCS
+        run: vendor/bin/phpcs -q
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: build_tools/package-lock.json
+
+      - name: Install JS dependencies
+        working-directory: build_tools
+        run: npm ci
+
+      - name: ESLint
+        working-directory: build_tools
+        run: npm run lint:js
+
+      - name: Stylelint
+        working-directory: build_tools
+        run: npm run lint:css
+
+  deploy:
+    needs: lint
+    # Only deploy from main (pull requests stop after lint).
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: build_tools/package-lock.json
+
+      - name: Install dependencies
+        working-directory: build_tools
+        run: npm ci
+
+      # Vite -> theme assets/; wp-scripts -> mu-plugins/__SLUG__/blocks/
+      - name: Build
+        working-directory: build_tools
+        run: npm run build
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      # Each upload only sends changed files. --delete is scoped to our own
+      # folders, so removed templates/patterns disappear on the server too
+      # while nothing else in wp-content is affected.
+      - name: Upload theme
+        run: |
+          rsync -avz --delete --exclude '.DS_Store' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}" \
+            public_html/wp-content/themes/__SLUG__/ \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/wp-content/themes/__SLUG__/"
+
+      - name: Upload must-use plugin
+        run: |
+          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}"
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/wp-content/mu-plugins"
+          rsync -avz --delete --exclude '.DS_Store' -e "$RSYNC_SSH" \
+            --rsync-path="mkdir -p ${{ secrets.DEPLOY_PATH }}/wp-content/mu-plugins && rsync" \
+            public_html/wp-content/mu-plugins/__SLUG__/ "$TARGET/__SLUG__/"
+          rsync -avz -e "$RSYNC_SSH" \
+            public_html/wp-content/mu-plugins/__SLUG__.php "$TARGET/"
+

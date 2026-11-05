@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "__SLUG__/site-info",
+	"version": "1.0.0",
+	"title": "Site Info",
+	"category": "theme",
+	"icon": "id-alt",
+	"description": "Shows values from Settings > Site Settings: footer text, contact details or social links. Always current, even in edited templates.",
+	"keywords": [ "contact", "social", "footer", "settings" ],
+	"textdomain": "__SLUG__",
+	"attributes": {
+		"part": {
+			"type": "string",
+			"enum": [ "footer-text", "contact", "social" ],
+			"default": "contact"
+		}
+	},
+	"supports": {
+		"html": false,
+		"color": { "text": true, "link": true },
+		"typography": { "fontSize": true },
+		"spacing": { "margin": true }
+	},
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

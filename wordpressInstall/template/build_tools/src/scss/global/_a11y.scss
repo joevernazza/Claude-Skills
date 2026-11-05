@@ -1,0 +1,105 @@
+@use "colors" as *;
+
+// ---------------------------------------------------------------
+// Accessibility (WCAG 2.2 AA)
+//
+// - 2.4.7 / 2.4.11 / 2.4.13  Visible, unobscured focus indicator
+// - 2.4.1                     Visible skip link (core adds the link itself)
+// - 2.5.8                     Minimum 24x24px target size for controls
+// - 1.4.11                    Non-text contrast (focus ring vs background)
+// - Forced colors             Windows High Contrast keeps focus/controls visible
+// Colors, link underlines and button focus also come from theme.json.
+// ---------------------------------------------------------------
+
+// Focus ring for everything interactive. :focus-visible keeps it for
+// keyboard users without showing it on mouse clicks.
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+	outline: 2px solid $primary_color;
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+// On dark backgrounds the ring flips to white so it still has 3:1 contrast.
+:where(.site-footer, .has-primary-background-color) :focus-visible {
+	outline-color: $white_color;
+}
+
+// Skip-link target (<main>) is focused programmatically; it isn't a control,
+// so no ring around the whole content area.
+[tabindex="-1"]:focus:not(:focus-visible),
+main[tabindex="-1"]:focus {
+	outline: none;
+}
+
+// Anchored/focused targets aren't hidden under anything at the top.
+:target,
+#wp--skip-link--target { /* stylelint-disable-line selector-id-pattern -- core's skip-link target */
+	scroll-margin-top: var(--wp--preset--spacing--40);
+}
+
+// ---------------------------------------------------------------
+// Skip link (core outputs `.skip-link.screen-reader-text`)
+// ---------------------------------------------------------------
+
+.skip-link.screen-reader-text:focus {
+	top: 8px;
+	left: 8px;
+	z-index: 100000;
+	padding: 12px 20px;
+	background: $primary_color;
+	color: $white_color;
+	font-weight: 700;
+	text-decoration: underline;
+	outline: 2px solid $white_color;
+	outline-offset: -4px;
+}
+
+// ---------------------------------------------------------------
+// Target size (2.5.8): menu items, the mobile menu buttons and buttons
+// ---------------------------------------------------------------
+
+// Two classes to outrank core's `.wp-block-navigation .wp-block-navigation-item__content`.
+.wp-block-navigation .wp-block-navigation-item__content {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	padding-inline: 4px;
+}
+
+.wp-block-navigation__responsive-container-open,
+.wp-block-navigation__responsive-container-close {
+	min-width: 44px;
+	min-height: 44px;
+	justify-content: center;
+}
+
+.wp-element-button,
+.wp-block-button__link {
+	min-height: 44px;
+}
+
+// The open mobile menu uses the site palette so text keeps its contrast.
+.wp-block-navigation__responsive-container.is-menu-open {
+	background-color: $light_color;
+	color: $primary_color;
+}
+
+// ---------------------------------------------------------------
+// Forced colors (Windows High Contrast)
+// ---------------------------------------------------------------
+
+@media (forced-colors: active) {
+
+	:focus-visible {
+		outline-color: Highlight;
+	}
+
+	.wp-element-button,
+	.wp-block-button__link {
+		border: 1px solid ButtonText;
+	}
+
+	.wp-block-separator {
+		border-color: CanvasText;
+	}
+}

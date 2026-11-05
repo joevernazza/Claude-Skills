@@ -1,0 +1,5 @@
+# WP-CLI config for the Docker `cli` service (working directory = public_html).
+# Lets `wp rewrite flush --hard` write .htaccess rewrite rules, which WP-CLI
+# can't detect on its own because it doesn't run under Apache.
+apache_modules:
+  - mod_rewrite

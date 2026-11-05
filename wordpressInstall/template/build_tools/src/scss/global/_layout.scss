@@ -1,0 +1,88 @@
+@use "colors" as *;
+@use "breakpoints" as *;
+
+// ---------------------------------------------------------------
+// Site header (parts/header.html -> patterns/header.php)
+// ---------------------------------------------------------------
+
+.site-header {
+	// Padding, not margin: core layout styles zero the first child's top margin.
+	padding-block: var(--wp--preset--spacing--40);
+	border-bottom: 1px solid $accent_color;
+}
+
+.site-header__inner {
+	align-items: center;
+	gap: var(--wp--preset--spacing--20);
+}
+
+.site-header .wp-block-site-title {
+	margin: 0;
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 800;
+
+	a {
+		color: $primary_color;
+		text-decoration: none;
+	}
+}
+
+.site-header .wp-block-navigation a {
+	color: $secondary_color;
+	text-decoration: none;
+
+	&:hover,
+	&:focus-visible,
+	&[aria-current="page"] {
+		color: $primary_color;
+		text-decoration: underline;
+	}
+}
+
+// ---------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------
+
+.site-main {
+	padding-block: var(--wp--preset--spacing--60);
+}
+
+.hero__subtitle {
+	line-height: 1.1;
+}
+
+// ---------------------------------------------------------------
+// Site footer (parts/footer.html -> patterns/footer.php)
+// ---------------------------------------------------------------
+
+.site-footer {
+	padding-block: var(--wp--preset--spacing--30);
+
+	p {
+		margin: 0;
+	}
+
+	a {
+		color: inherit;
+		text-decoration: underline;
+	}
+}
+
+.site-footer__links a {
+	display: inline-block;
+	padding-block: 4px;
+}
+
+.site-footer__inner {
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--20);
+
+	@include mq(tablet) {
+		flex-direction: row;
+	}
+}
+
+.site-footer__brand,
+.site-footer__meta {
+	gap: 4px;
+}

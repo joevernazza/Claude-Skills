@@ -1,0 +1,52 @@
+// ---------------------------------------------------------------
+// Scroll-reveal animations (driven by src/js/animate.js)
+//
+// Targets (keep in sync with REVEAL_SELECTOR in src/js/main.js):
+//   - any element with the `animate` class
+//   - headings, paragraphs and list items inside a Group using the
+//     "Reveal on scroll" block style (`is-style-reveal`)
+//   - Separators using that style
+//
+// JS adds `active` when an element scrolls into view. Elements are only
+// hidden when <html> has the `js` class (added inline in <head> by the
+// theme), so the page stays readable without JS.
+//
+// Tweak per element with custom properties, e.g.
+//   style="--animate-y: 0; --animate-x: -40px"   (slide in from the left)
+// ---------------------------------------------------------------
+
+.js :is(
+	.animate,
+	.is-style-reveal :is(h1, h2, h3, h4, h5, h6, p, li),
+	.wp-block-separator.is-style-reveal
+) {
+	--animate-x: 0;
+	--animate-y: 0; // fade only by default
+	--animate-duration: 0.4s;
+
+	opacity: 0;
+	transform: translate(var(--animate-x), var(--animate-y));
+	transition:
+		opacity var(--animate-duration) ease-out,
+		transform var(--animate-duration) ease-out;
+
+	&.active {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+// Opt-in movement for manually tagged elements
+.js .animate--rise {
+	--animate-y: 24px;
+}
+
+// Never hide content inside the editor canvas.
+.editor-styles-wrapper :is(
+	.animate,
+	.is-style-reveal :is(h1, h2, h3, h4, h5, h6, p, li),
+	.wp-block-separator.is-style-reveal
+) {
+	opacity: 1;
+	transform: none;
+}

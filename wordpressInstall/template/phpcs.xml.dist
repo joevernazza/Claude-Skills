@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<ruleset name="__SITE_NAME__">
+	<description>WordPress Coding Standards for the theme and must-use plugin.</description>
+
+	<file>public_html/wp-content/themes/__SLUG__</file>
+	<file>public_html/wp-content/mu-plugins/__SLUG__.php</file>
+	<file>public_html/wp-content/mu-plugins/__SLUG__</file>
+	<file>build_tools/src/blocks</file>
+
+	<!-- Build output (render.php is linted from build_tools/src instead). -->
+	<exclude-pattern>public_html/wp-content/mu-plugins/__SLUG__/blocks/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<rule ref="WordPress"/>
+
+	<!-- Project-wide settings. -->
+	<config name="minimum_wp_version" value="6.7"/>
+	<config name="testVersion" value="8.1-"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="__SLUG__"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="__PREFIX__"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Theme/plugin files are named for what they do, not class-based. -->
+	<rule ref="WordPress.Files.FileName">
+		<properties>
+			<property name="is_theme" value="true"/>
+		</properties>
+	</rule>
+</ruleset>
