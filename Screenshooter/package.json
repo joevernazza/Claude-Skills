@@ -1,0 +1,18 @@
+{
+  "name": "screenshooter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-page website and email screenshots across viewports, driven by a Claude Code skill.",
+  "type": "module",
+  "bin": {
+    "screenshooter": "scripts/shoot.mjs"
+  },
+  "scripts": {
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3",
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.48.0"
+  }
+}
