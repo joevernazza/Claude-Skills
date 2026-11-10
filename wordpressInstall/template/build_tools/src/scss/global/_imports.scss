@@ -1,0 +1,7 @@
+// Loads every global partial. Add new global files here.
+// Base typography, colors and spacing come from theme.json; these partials
+// only cover what theme.json can't express.
+@use "global";
+@use "layout";
+@use "animate";
+@use "a11y";

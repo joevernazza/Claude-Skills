@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screenshooter Pages</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f0f2f5; --border: #dde1e7;
+    --text: #1b1f24; --muted: #5f6b7a; --accent: #2563eb; --accent-text: #ffffff;
+    --danger: #c62828; --code-bg: #f7f8fa; --drop: #2563eb22; --shadow: 0 1px 2px #0000000f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111418; --surface: #1a1e24; --surface-2: #232830; --border: #313844;
+      --text: #e6e9ee; --muted: #9aa5b4; --accent: #5b8cff; --accent-text: #0b1020;
+      --danger: #ff6b6b; --code-bg: #14181d; --drop: #5b8cff33; --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111418; --surface: #1a1e24; --surface-2: #232830; --border: #313844;
+    --text: #e6e9ee; --muted: #9aa5b4; --accent: #5b8cff; --accent-text: #0b1020;
+    --danger: #ff6b6b; --code-bg: #14181d; --drop: #5b8cff33; --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 120px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .adders { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 720px) { .adders { grid-template-columns: 1fr; } }
+  .adder { display: flex; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; box-shadow: var(--shadow); }
+  .adder input { flex: 1; min-width: 0; }
+  input, textarea { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+  button { font: inherit; cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 6px; padding: 6px 10px; white-space: nowrap; }
+  button:hover { border-color: var(--muted); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+  button.icon { padding: 6px 8px; min-width: 32px; }
+  button.danger:hover { color: var(--danger); border-color: var(--danger); }
+  button.on { border-color: var(--accent); color: var(--accent); }
+  .note { color: var(--muted); font-size: 13px; min-height: 18px; margin: -8px 0 12px; }
+  ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  li { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); }
+  li.dragging { opacity: .4; }
+  li.over { outline: 2px dashed var(--accent); background: var(--drop); }
+  .row { display: flex; align-items: center; gap: 8px; padding: 8px; flex-wrap: wrap; }
+  .handle { cursor: grab; color: var(--muted); padding: 4px 2px; user-select: none; font-size: 16px; line-height: 1; }
+  .num { width: 26px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .url { flex: 3 1 260px; min-width: 0; }
+  .label { flex: 1 1 140px; min-width: 0; }
+  .btns { display: flex; gap: 4px; margin-left: auto; }
+  .panel { border-top: 1px solid var(--border); padding: 10px 12px 12px 48px; display: grid; gap: 8px; }
+  @media (max-width: 720px) { .panel { padding-left: 12px; } }
+  .panel textarea { width: 100%; min-height: 110px; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--code-bg); resize: vertical; tab-size: 2; }
+  .panel .meta { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; flex-wrap: wrap; }
+  .panel .meta input { width: 90px; }
+  code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface-2); padding: 1px 4px; border-radius: 4px; }
+  .empty { text-align: center; color: var(--muted); padding: 32px; border: 1px dashed var(--border); border-radius: 8px; }
+  footer { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); }
+  footer .inner { max-width: 1100px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  footer .count { color: var(--muted); margin-right: auto; }
+  .done { max-width: 520px; margin: 15vh auto; text-align: center; padding: 0 16px; }
+  .done h1 { font-size: 22px; }
+</style>
+</head>
+<body>
+<main id="app">
+  <h1>Pages to screenshot</h1>
+  <p class="sub">Drag to reorder. Duplicate a page to shoot several versions of it, give each a label and optional JavaScript to run before the shot.</p>
+
+  <div class="adders">
+    <form class="adder" id="addForm">
+      <input id="addUrl" placeholder="Add a URL — https://example.com/about" autocomplete="off">
+      <button type="submit">Add</button>
+    </form>
+    <form class="adder" id="scanForm">
+      <input id="scanUrl" placeholder="Scan a site — example.com" autocomplete="off">
+      <button type="submit" id="scanBtn">Scan</button>
+    </form>
+  </div>
+  <div class="note" id="note"></div>
+
+  <ol id="list"></ol>
+</main>
+
+<footer id="footer">
+  <div class="inner">
+    <span class="count" id="count"></span>
+    <button id="cancel">Cancel</button>
+    <button class="primary" id="save">Start screenshots</button>
+  </div>
+</footer>
+
+<script>
+const state = { pages: [], viewports: 3, open: new Set() };
+let uid = 0;
+const $ = s => document.querySelector(s);
+const listEl = $('#list');
+
+function makePage(p) {
+  return { id: ++uid, url: p.url || '', label: p.label || '', js: p.js || '', wait: Number(p.wait) || 0 };
+}
+
+function note(msg) { $('#note').textContent = msg || ''; }
+
+function render() {
+  listEl.innerHTML = '';
+  if (!state.pages.length) {
+    listEl.innerHTML = '<li class="empty">No pages yet. Add a URL or scan a site above.</li>';
+  }
+  state.pages.forEach((p, i) => listEl.appendChild(rowFor(p, i)));
+  const n = state.pages.length;
+  $('#count').textContent = `${n} page${n === 1 ? '' : 's'} × ${state.viewports} viewport${state.viewports === 1 ? '' : 's'} = ${n * state.viewports} screenshots`;
+  $('#save').disabled = !n;
+}
+
+function rowFor(p, i) {
+  const li = document.createElement('li');
+  li.dataset.id = p.id;
+  const hasJs = !!p.js.trim();
+  const open = state.open.has(p.id);
+  li.innerHTML = `
+    <div class="row">
+      <span class="handle" title="Drag to reorder">⋮⋮</span>
+      <span class="num">${i + 1}</span>
+      <input class="url" placeholder="https://…" aria-label="URL">
+      <input class="label" placeholder="label (optional)" aria-label="Label">
+      <div class="btns">
+        <button class="icon js ${hasJs || open ? 'on' : ''}" title="Custom JavaScript">JS${hasJs ? ' •' : ''}</button>
+        <button class="icon dup" title="Duplicate">⧉</button>
+        <button class="icon up" title="Move up" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button class="icon down" title="Move down" ${i === state.pages.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="icon danger del" title="Remove">✕</button>
+      </div>
+    </div>
+    ${open ? `
+    <div class="panel">
+      <textarea spellcheck="false" placeholder="// Runs in the page after it loads, before the screenshot. await works.
+document.querySelector('.menu-toggle').click();
+await new Promise(r => setTimeout(r, 500));"></textarea>
+      <div class="meta">
+        <label>Extra wait after JS <input type="number" min="0" step="100" class="wait"> ms</label>
+        <span>Runs at every viewport. Use <code>innerWidth</code> to branch per size.</span>
+      </div>
+    </div>` : ''}`;
+
+  const url = li.querySelector('.url'), label = li.querySelector('.label');
+  url.value = p.url; label.value = p.label;
+  url.oninput = () => { p.url = url.value; };
+  label.oninput = () => { p.label = label.value; };
+  const ta = li.querySelector('textarea');
+  if (ta) {
+    ta.value = p.js;
+    ta.oninput = () => { p.js = ta.value; };
+    ta.onkeydown = e => {
+      if (e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault();
+        ta.setRangeText('  ', ta.selectionStart, ta.selectionEnd, 'end');
+        p.js = ta.value;
+      }
+    };
+    const wait = li.querySelector('.wait');
+    wait.value = p.wait || '';
+    wait.oninput = () => { p.wait = Math.max(0, Number(wait.value) || 0); };
+  }
+
+  li.querySelector('.js').onclick = () => { state.open.has(p.id) ? state.open.delete(p.id) : state.open.add(p.id); render(); };
+  li.querySelector('.dup').onclick = () => {
+    const copy = makePage(p);
+    state.pages.splice(i + 1, 0, copy);
+    state.open.add(copy.id);
+    render();
+    listEl.querySelector(`li[data-id="${copy.id}"] .label`).focus();
+  };
+  li.querySelector('.up').onclick = () => move(i, i - 1);
+  li.querySelector('.down').onclick = () => move(i, i + 1);
+  li.querySelector('.del').onclick = () => { state.pages.splice(i, 1); state.open.delete(p.id); render(); };
+
+  // Drag only from the handle so text in the inputs can still be selected.
+  const handle = li.querySelector('.handle');
+  handle.onmousedown = () => { li.draggable = true; };
+  li.onmouseup = () => { li.draggable = false; };
+  li.ondragstart = e => { li.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(i)); };
+  li.ondragend = () => { li.draggable = false; li.classList.remove('dragging'); };
+  li.ondragover = e => { e.preventDefault(); li.classList.add('over'); };
+  li.ondragleave = () => li.classList.remove('over');
+  li.ondrop = e => {
+    e.preventDefault();
+    li.classList.remove('over');
+    const from = Number(e.dataTransfer.getData('text/plain'));
+    if (!Number.isNaN(from)) move(from, i);
+  };
+  return li;
+}
+
+function move(from, to) {
+  if (to < 0 || to >= state.pages.length || from === to) return;
+  const [p] = state.pages.splice(from, 1);
+  state.pages.splice(to, 0, p);
+  render();
+}
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+
+$('#addForm').onsubmit = e => {
+  e.preventDefault();
+  const v = $('#addUrl').value.trim();
+  if (!v) return;
+  state.pages.push(makePage({ url: v }));
+  $('#addUrl').value = '';
+  render();
+};
+
+$('#scanForm').onsubmit = async e => {
+  e.preventDefault();
+  const v = $('#scanUrl').value.trim();
+  if (!v) return;
+  const btn = $('#scanBtn');
+  btn.disabled = true; btn.textContent = 'Scanning…';
+  note(`Scanning ${v} — this can take a minute on sites without a sitemap.`);
+  try {
+    const r = await api('/api/discover', { url: v });
+    const have = new Set(state.pages.map(p => p.url));
+    const added = r.urls.filter(u => !have.has(u));
+    added.forEach(u => state.pages.push(makePage({ url: u })));
+    render();
+    note(`${r.note || ''} Added ${added.length} new page${added.length === 1 ? '' : 's'}.`.trim());
+  } catch (err) {
+    note(`Scan failed: ${err.message}`);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Scan';
+  }
+};
+
+function finished(title, text) {
+  document.getElementById('footer').remove();
+  $('#app').innerHTML = `<div class="done"><h1>${title}</h1><p class="sub">${text}</p></div>`;
+}
+
+$('#save').onclick = async () => {
+  const empty = state.pages.findIndex(p => !p.url.trim());
+  if (empty >= 0) { note(`Row ${empty + 1} has no URL.`); return; }
+  try {
+    await api('/api/save', { pages: state.pages.map(({ url, label, js, wait }) => ({ url, label, js, wait })) });
+    finished('Saved — taking screenshots', 'You can close this tab and go back to Claude Code.');
+  } catch (err) { note(`Couldn't save: ${err.message}`); }
+};
+
+$('#cancel').onclick = async () => {
+  if (!confirm('Cancel without taking screenshots?')) return;
+  try { await api('/api/cancel', {}); } catch {}
+  finished('Cancelled', 'No screenshots will be taken. You can close this tab.');
+};
+
+api('/api/pages').then(d => {
+  state.pages = d.pages.map(makePage);
+  state.viewports = d.viewports || 3;
+  render();
+}).catch(err => note(`Couldn't load pages: ${err.message}`));
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "name": "__SLUG__-build-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:theme && npm run build:blocks",
+    "build:theme": "vite build",
+    "build:blocks": "wp-scripts build --webpack-src-dir=src/blocks --output-path=../public_html/wp-content/mu-plugins/__SLUG__/blocks --webpack-copy-php",
+    "watch": "npm run watch:blocks & npm run watch:theme",
+    "watch:theme": "vite build --watch --mode development",
+    "watch:blocks": "wp-scripts start --webpack-src-dir=src/blocks --output-path=../public_html/wp-content/mu-plugins/__SLUG__/blocks --webpack-copy-php",
+    "lint:js": "wp-scripts lint-js src tests",
+    "lint:css": "wp-scripts lint-style \"src/**/*.scss\"",
+    "test:a11y": "node tests/a11y.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@wordpress/scripts": "^35.0.0",
+    "playwright": "1.64.1",
+    "playwright-core": "1.64.1",
+    "sass-embedded": "^1.107.1",
+    "vite": "^8.3.5"
+  },
+  "dependencies": {
+    "lenis": "^1.3.27"
+  },
+  "overrides": {
+    "playwright": "1.64.1",
+    "playwright-core": "1.64.1",
+    "@playwright/test": "1.64.1"
+  }
+}

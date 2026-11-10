@@ -1,0 +1,14 @@
+// ---------------------------------------------------------------
+// Colors
+// Load in any partial with: @use 'colors' as *;
+//
+// The palette is defined once in theme.json; these map to the CSS custom
+// properties WordPress generates from it, so SCSS and the editor never drift.
+// ---------------------------------------------------------------
+
+$primary_color: var(--wp--preset--color--primary);
+$secondary_color: var(--wp--preset--color--secondary);
+$tertiary_color: var(--wp--preset--color--tertiary);
+$accent_color: var(--wp--preset--color--accent);
+$light_color: var(--wp--preset--color--light);
+$white_color: var(--wp--preset--color--white);
